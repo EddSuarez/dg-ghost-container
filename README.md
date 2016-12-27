@@ -28,8 +28,30 @@ This container uses the official Ghost image as it's base, has a more "environme
 
 ## Quickstart on via Docker
 
+### Run Mysql server
 ```
-docker run --name some-ghost -d eddsuarez/ghost
+docker run --name mysql -p 3306:3306 \
+    -e MYSQL_ROOT_PASSWORD=12345 \
+    -e MYSQL_USER=admin \
+    -e MYSQL_PASSWORD=12345 \
+    -e MYSQL_DATABASE=ghost \
+    -d mysql:5.5
+```
+
+### Run Ghost
+```
+docker run --name ghost \
+    --link mysql:mysql \
+    -e GHOST_URL=localhost:8080 \
+    -e MAIL_SERVICE=Gmail \
+    -e MAIL_ACCOUNT=example@gmail.com \
+    -e MAIL_PWD=123 \
+    -e MAIL_FROM='"Example" <example@gmail.com>' \
+    -e MYSQL_SERVICE_HOST=mysql \
+    -e MYSQL_USER=admin \
+    -e MYSQL_PASSWORD=12345 \
+    -e MYSQL_DATABASE=ghost \
+    -d eddsuarez/dg-ghost-container:latest
 ```
 
 This will start Ghost in development mode listening on the default port of 2368.
@@ -38,7 +60,9 @@ If you'd like to be able to access the instance from the host without the
 contain's IP, standard port mappings can be used:
 
 ```
-docker run --name some-ghost -p 8080:2368 -d eddsuarez/ghost
+docker run --name some-ghost -p 8080:2368 -d eddsuarez/dg-ghost-container \
+    ...
+
 ```
 
 Then, access it via `http://localhost:8080` or `http://host-ip:8080` in a browser.
